@@ -1,0 +1,17 @@
+{
+    "name": "drupal/apigee_api_catalog_versioning",
+    "description": "Apigee API Catalog Versioning",
+    "type": "drupal-module",
+    "require": {
+        "php": ">=7.4",
+        "drupal/core": "^8 || ^9",
+        "drupal/extra_field": "^2.1"
+    },
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Arlina Espinoza",
+            "email": "arlina.espinoza@gmail.com"
+        }
+    ]
+}

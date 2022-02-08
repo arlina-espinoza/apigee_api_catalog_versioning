@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for apigee_api_catalog_versioning module.
+ */
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function apigee_api_catalog_versioning_field_formatter_info_alter(array &$info) {
+  // Let our field type re-use an existing widget.
+  $info['redoc_ui']['field_types'][] = 'spec_versioning';
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Show a single version of the API Spec at a time.
+ */
+function apigee_api_catalog_versioning_preprocess_field__field_oas_file_specification(&$variables) {
+  $node = $variables['element']['#object'];
+  $value = $node->field_oas_file_specification->getValue();
+
+  $versions = [];
+  foreach ($value as $index => $item) {
+    $versions[$item['version']] = $index;
+  }
+
+  if (empty($versions)) {
+    return;
+  }
+
+  $requestedVersion = \Drupal::request()->query->get('version');
+  $requestedVersion = urldecode($requestedVersion);
+  $requestedVersion = (!empty($requestedVersion) && array_key_exists($requestedVersion, $versions)) ?
+    $requestedVersion :
+    array_key_first($versions);
+
+  foreach ($versions as $version => $index) {
+    if ($version != $requestedVersion) {
+      unset($variables['items'][$index]);
+    }
+  }
+
+  $variables['#cache']['contexts'][] = 'url.query_args:version';
+}
