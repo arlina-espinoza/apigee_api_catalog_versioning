@@ -183,7 +183,6 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
     foreach ($value as $item) {
       $versions[] = $item['version'];
     }
-    arsort($versions);
 
     return $versions;
   }
