@@ -1,0 +1,7 @@
+apigee_api_catalog_versioning.settings:
+  path: '/admin/config/system/catalog-versioning-settings'
+  defaults:
+    _title: 'Catalog versioning settings'
+    _form: 'Drupal\apigee_api_catalog_versioning\Form\CatalogVersioningSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

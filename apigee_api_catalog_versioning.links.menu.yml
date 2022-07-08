@@ -1,0 +1,6 @@
+apigee_api_catalog_versioning.settings:
+  title: Catalog Versioning Settings
+  description: Administer catalog versioning widget configuration.
+  parent: system.admin_config_system
+  route_name: apigee_api_catalog_versioning.settings
+  weight: 10

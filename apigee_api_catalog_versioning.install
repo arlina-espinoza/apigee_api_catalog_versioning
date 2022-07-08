@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Install file for the apigee_api_catalog_versioning module.
+ */
+
+use Drupal\apigee_api_catalog_versioning\Form\CatalogVersioningSettingsForm;
+
+/**
+ * Implements hook_uninstall().
+ */
+function apigee_api_catalog_versioning_uninstall() {
+  $config = \Drupal::service('config.factory');
+  $settings = $config->getEditable(CatalogVersioningSettingsForm::SETTINGS);
+  $settings->delete();
+}
+
+/**
+ * Set default value for number of items to display in dropdown: show all.
+ */
+function apigee_api_catalog_versioning_update_9401(&$sandbox) {
+  \Drupal::service('config.factory')
+    ->getEditable(CatalogVersioningSettingsForm::SETTINGS)
+    ->set('max_items', 0)
+    ->save(TRUE);
+}

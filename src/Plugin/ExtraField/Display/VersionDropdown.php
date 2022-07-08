@@ -2,6 +2,8 @@
 
 namespace Drupal\apigee_api_catalog_versioning\Plugin\ExtraField\Display;
 
+use Drupal\apigee_api_catalog_versioning\Form\CatalogVersioningSettingsForm;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
@@ -29,7 +31,12 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
 
   protected const OAS_FIELD_NAME = 'field_oas_file_specification';
 
-  protected const MAX_VERSIONS_TO_DISPLAY = 5;
+  /**
+   * The max number of versions to display in the dropdown. Zero for unlimited.
+   *
+   * @var int
+   */
+  protected int $maxVersionsToDisplay = 0;
 
   /**
    * The entity type manager service.
@@ -46,6 +53,13 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
   private $requestStack;
 
   /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * Constructs a \Drupal\Component\Plugin\PluginBase object.
    *
    * @param array $configuration
@@ -58,11 +72,15 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
    *   The entity type manager service.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RequestStack $request_stack) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, RequestStack $request_stack, ConfigFactoryInterface $config_factory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->requestStack = $request_stack;
+    $this->configFactory = $config_factory;
+    $this->maxVersionsToDisplay = $this->getMaxVersionsToDisplay();
   }
 
   /**
@@ -74,7 +92,8 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
       $plugin_id,
       $plugin_definition,
       $container->get('entity_type.manager'),
-      $container->get('request_stack')
+      $container->get('request_stack'),
+      $container->get('config.factory')
     );
   }
 
@@ -120,7 +139,7 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
 
     $count = 0;
     foreach ($versions as $index => $version) {
-      if ($count++ < static::MAX_VERSIONS_TO_DISPLAY) {
+      if (empty($this->maxVersionsToDisplay) || ($count++ < $this->maxVersionsToDisplay)) {
         $build['menu']['link_' . $index] = [
           '#type' => 'link',
           '#title' => $version,
@@ -184,6 +203,23 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
     return (!empty($requestedVersion) && in_array($requestedVersion, $versions)) ?
       $requestedVersion :
       reset($versions);
+  }
+
+  /**
+   * Get the max number of versions to display in the dropdown.
+   *
+   * @return int|null
+   *   Max number of versions or zero to show all available.
+   */
+  protected function getMaxVersionsToDisplay(): int {
+    $maxVersionsToDisplay = $this->configFactory
+      ->get(CatalogVersioningSettingsForm::SETTINGS)
+      ->get('max_items');
+
+    if (empty($maxVersionsToDisplay) || !is_numeric($maxVersionsToDisplay) || $maxVersionsToDisplay < 0) {
+      return 0;
+    }
+    return (int) $maxVersionsToDisplay;
   }
 
 }
