@@ -197,7 +197,7 @@ class VersionDropdown extends ExtraFieldDisplayBase implements ContainerFactoryP
    *   A valid requested version.
    */
   protected function getRequestedVersion(array $versions):string {
-    $requestedVersion = $this->requestStack->getCurrentRequest()->query->get('version');
+    $requestedVersion = $this->requestStack->getCurrentRequest()->query->get('version', '');
     $requestedVersion = urldecode($requestedVersion);
     return (!empty($requestedVersion) && in_array($requestedVersion, $versions)) ?
       $requestedVersion :
