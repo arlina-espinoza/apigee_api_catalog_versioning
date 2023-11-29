@@ -4,8 +4,8 @@
     "type": "drupal-module",
     "require": {
         "php": ">=8.1",
-        "drupal/core": "^8 || ^9 || ^10",
-        "drupal/extra_field": "^2.1"
+        "drupal/core": "^9 || ^10",
+        "drupal/extra_field": "^2.3"
     },
     "license": "GPL-2.0-or-later",
     "authors": [

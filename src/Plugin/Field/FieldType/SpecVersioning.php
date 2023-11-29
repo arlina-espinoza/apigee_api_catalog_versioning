@@ -87,6 +87,7 @@ class SpecVersioning extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
+    $properties = [];
     $properties['target_id'] = DataReferenceTargetDefinition::create('integer')
       ->setLabel(new TranslatableMarkup('File ID'))
       ->setSetting('unsigned', TRUE);
@@ -213,20 +214,24 @@ class SpecVersioning extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
+    /** @var \Drupal\Core\File\FileSystemInterface $fileSystem */
+    $fileSystem = \Drupal::service('file_system');
+    /** @var \Drupal\file\FileRepositoryInterface $fileRepository */
+    $fileRepository = \Drupal::service('file.repository');
     $random = new Random();
     $settings = $field_definition->getSettings();
 
     // Prepare destination.
     $dirname = static::doGetUploadLocation($settings);
-    \Drupal::service('file_system')->prepareDirectory($dirname, FileSystemInterface::CREATE_DIRECTORY);
+    $fileSystem->prepareDirectory($dirname, FileSystemInterface::CREATE_DIRECTORY);
 
     // Generate a file entity.
     $destination = $dirname . '/' . $random->name(10, TRUE) . '.yml';
     $data = $random->paragraphs(3);
-    $file = file_save_data($data, $destination, FileSystemInterface::EXISTS_ERROR);
+    $file = $fileRepository->writeData($data, $destination, FileSystemInterface::EXISTS_ERROR);
     $values = [
       'target_id' => $file->id(),
-      'version' => rand(1, 10) . '.' . rand(1, 10),
+      'version' => random_int(1, 10) . '.' . random_int(1, 10),
     ];
 
     return $values;
